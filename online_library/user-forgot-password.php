@@ -29,7 +29,7 @@ if (isset($_POST['change'])) {
 //     if (isset($_POST["vercode"]) && isset($_SESSION["vercode"]) && $_POST["vercode"] !== $_SESSION["vercode"]) {
         
     } else {
-
+        
         // On continue
         // On récupère l'email et le numéro de portable saisi par l'utilisateur
         $email = isset($_POST['emailid']) ? $_POST['emailid'] : '';

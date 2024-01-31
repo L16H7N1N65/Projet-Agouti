@@ -13,7 +13,7 @@ if (!isset($_SESSION['login']) || $_SESSION['login'] == '') {
 header('location:index.php');
 error_log('User is not logged in, redirected to index.php');
 exit();
-error_log('exited');
+
 
 } else {
 // Sinon on peut continuer. Après soumission du formulaire de profil
