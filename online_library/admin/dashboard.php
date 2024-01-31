@@ -1,6 +1,8 @@
 <?php
 // On démarre (ou on récupère) la session courante
 session_start();
+error_log('Session started add-category.php');
+error_log("admin " . print_r($_SESSION, 1));
 
 // On inclue le fichier de configuration et de connexion à la base de données
 include('includes/config.php');
@@ -10,20 +12,59 @@ if (strlen($_SESSION['alogin']) == 0) {
   // L'utilisateur est renvoyé vers la page de login : index.php
   header('location:../index.php');
 } else {
-  // sinon on récupère les informations à afficher depuis la base de données
+
+  // sinon on récupère les informations à afficher depuis la base de données  
+
   // On récupère le nombre de livres depuis la table tblbooks
+  $sql = "SELECT COUNT(*) FROM tblbooks";
+  $query = $dbh->prepare($sql);
+  $query->execute();
+  error_log("récupère le nombre de livres depuis la table tblbooks");
+  $num_books[0] = $query->fetchColumn();
+  error_log(gettype($num_books));
 
   // On récupère le nombre de livres en prêt depuis la table tblissuedbookdetails
+  $sql = "SELECT COUNT(*) FROM tblissuedbookdetails WHERE ReturnStatus=0";
+  $query = $dbh->prepare($sql);
+  $query->execute();
+  error_log("récupère le nombre de livres en prêt");
+  $num_books_on_loan[0] = $query->fetchColumn();
+  error_log(gettype($num_books_on_loan));
 
   // On récupère le nombre de livres retournés  depuis la table tblissuedbookdetails
   // Ce sont les livres dont le statut est à 1
+  $sql = "SELECT COUNT(*) FROM tblissuedbookdetails WHERE ReturnStatus=1";
+  $query = $dbh->prepare($sql);
+  $query->execute();
+  error_log("récupère le nombre de livres retournés");
+
+  $num_books_returned[0] = $query->fetchColumn();
+  error_log(gettype($num_books_returned));
 
   // On récupère le nombre de lecteurs dans la table tblreaders
+  $sql = "SELECT COUNT(*) FROM tblreaders";
+  $query = $dbh->prepare($sql);
+  $query->execute();
+  error_log("récupère le nombre de lecteurs");
+  $num_readers[0] = $query->fetchColumn();
+  error_log(gettype($num_readers));
 
   // On récupère le nombre d'auteurs dans la table tblauthors
+  $sql = "SELECT COUNT(*) FROM tblauthors";
+  $query = $dbh->prepare($sql);
+  $query->execute();
+  error_log("récupère le nombre d'auteurs");
+  $num_authors[0] = $query->fetchColumn();
+  error_log(gettype($num_authors));
 
   // On récupère le nombre de catégories dans la table tblcategory
-?>
+  $sql = "SELECT COUNT(*) FROM tblcategory";
+  $query = $dbh->prepare($sql);
+  $query->execute();
+  error_log("récupère le nombre de catégories");
+  $num_categories[0] = $query->fetchColumn();
+  error_log(gettype($num_categories));
+  ?>
   <!DOCTYPE html>
   <html lang="FR">
 
@@ -54,7 +95,9 @@ if (strlen($_SESSION['alogin']) == 0) {
           <!-- On affiche la carte Nombre de livres -->
           <div class="alert alert-succes text-center">
             <span class="fa fa-book fa-5x">
-              <h3><?php echo $result[0]; ?></h3>
+              <h3>
+                <?php echo $num_books[0]; ?>
+              </h3>
             </span>
             Nombre de livre
           </div>
@@ -63,7 +106,9 @@ if (strlen($_SESSION['alogin']) == 0) {
           <!-- On affiche la carte Livres en pr�t -->
           <div class="alert alert-succes text-center">
             <span class="fa fa-book fa-5x">
-              <h3><?php echo $result1[0]; ?></h3>
+              <h3>
+                <?php echo $num_books_on_loan[0]; ?>
+              </h3>
 
             </span>
             Livres en pret
@@ -73,7 +118,9 @@ if (strlen($_SESSION['alogin']) == 0) {
           <!-- On affiche la carte Livres retourn�s -->
           <div class="alert alert-succes text-center">
             <span class="fa fa-bars fa-5x">
-              <h3><?php echo $result2[0]; ?></h3>
+              <h3>
+                <?php echo $num_books_returned[0]; ?>
+              </h3>
 
             </span>
             Livres retournés
@@ -83,7 +130,9 @@ if (strlen($_SESSION['alogin']) == 0) {
           <!-- On affiche la carte Lecteurs -->
           <div class="alert alert-succes text-center">
             <span class="fa fa-recycle fa-5x">
-              <h3><?php echo $result3[0]; ?></h3>
+              <h3>
+                <?php echo $num_readers[0]; ?>
+              </h3>
 
             </span>
             Lecteurs
@@ -93,7 +142,9 @@ if (strlen($_SESSION['alogin']) == 0) {
           <!-- On affiche la carte Auteurs -->
           <div class="alert alert-succes text-center">
             <span class="fa fa-users fa-5x">
-              <h3><?php echo $result4[0]; ?></h3>
+              <h3>
+                <?php echo $num_authors[0]; ?>
+              </h3>
 
             </span>
             Auteurs
@@ -102,8 +153,10 @@ if (strlen($_SESSION['alogin']) == 0) {
         <div class="col-sm-3 col-md-3">
           <!-- On affiche la carte Cat�gories -->
           <div class="alert alert-succes text-center">
-            <span class="fa fa-file-archive fa-5x">
-              <h3><?php echo $result5[0]; ?></h3>
+            <span class="fa fa-file-archive-o fa-5x">
+              <h3>
+                <?php echo $num_categories[0]; ?>
+              </h3>
 
             </span>
             Catégories
