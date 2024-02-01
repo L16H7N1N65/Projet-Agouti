@@ -1,7 +1,10 @@
 <?php
 session_start();
+error_log('Session started edit-category.php');
+error_log("edit-category" . print_r($_SESSION, 1));
 
 include('includes/config.php');
+error_log('config included');
 
 // Si l'utilisateur n'est plus logué
 if (strlen($_SESSION['alogin']) == 0) {

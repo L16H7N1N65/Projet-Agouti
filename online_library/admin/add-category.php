@@ -12,7 +12,7 @@ error_log('config included');
 // Si l'utilisateur n'est plus logué
 if (strlen($_SESSION['alogin']) == 0) {
     
-// if (!isset($_SESSION['alogin']) || $_SESSION['alogin'] != 'true') {
+// if (!isset($_SESSION['alogin']) || $_SESSION['alogin'] != 'admin') {
     $_SESSION['error'] = "Something went wrong. Please try again";
 
     // On le redirige vers la page de login
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $categoryName = $_POST['categoryName'];
     error_log(gettype( $categoryName));
     
-    $categoryStatus = $_POST['Status'];
+    $categoryStatus = array_key_exists('Status', $_POST) ? $_POST['Status']: 'default_value';
     error_log(gettype( $categoryStatus));
 
     // On prepare la requete d'insertion dans la table tblcategory

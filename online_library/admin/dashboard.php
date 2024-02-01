@@ -64,6 +64,7 @@ if (strlen($_SESSION['alogin']) == 0) {
   error_log("récupère le nombre de catégories");
   $num_categories[0] = $query->fetchColumn();
   error_log(gettype($num_categories));
+}
   ?>
   <!DOCTYPE html>
   <html lang="FR">
@@ -173,4 +174,3 @@ if (strlen($_SESSION['alogin']) == 0) {
   </body>
 
   </html>
-<?php } ?>
