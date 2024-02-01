@@ -22,12 +22,15 @@ if (strlen($_SESSION['alogin']) == 0) {
 // Sinon on peut continuer. Après soumission du formulaire de creation
 } 
 
+error_log(print_r($_POST, 1));
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // On recupere le nom et le statut de la categorie
     $categoryName = $_POST['categoryName'];
     error_log(gettype( $categoryName));
     
-    $categoryStatus = array_key_exists('Status', $_POST) ? $_POST['Status']: 'default_value';
+    //$categoryStatus = array_key_exists('Status', $_POST) ? $_POST['Status']: '0';
+    $categoryStatus = $_POST['categoryStatus'];
     error_log(gettype( $categoryStatus));
 
     // On prepare la requete d'insertion dans la table tblcategory
@@ -35,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $query = $dbh->prepare($sql);
     $query->bindParam(':CategoryName', $categoryName, PDO::PARAM_STR);
     $query->bindParam(':Status', $categoryStatus, PDO::PARAM_STR);
+    error_log(gettype( $categoryStatus));
 
     // On execute la requête
     $query->execute();
@@ -75,8 +79,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="text" id="categoryName" name="categoryName" required>
         <label for="categoryStatus">Statut:</label>
         <select id="categoryStatus" name="categoryStatus" required>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
+            <option value="1">Active</option>
+            <option value="0">Inactive</option>
+            <option value="2">Autre status</option>
         </select>
         <input type="submit" value="Ajouter la catégorie">
     </form>

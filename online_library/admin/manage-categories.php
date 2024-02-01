@@ -2,7 +2,7 @@
 // On recupere la session courante
 session_start();
 error_log('Session started manage-categories.php');
-error_log("manage-categories" . print_r($_SESSION, 1));
+error_log("manage-categories" . print_r($_SESSION, true));
 
 // On inclue le fichier de configuration et de connexion a la base de donn�es
 include('includes/config.php');
@@ -14,38 +14,62 @@ if (!isset($_SESSION['alogin']) || $_SESSION['alogin'] != 'admin') {
     // Redirect to login page
     header('Location:../index.php');
     exit();
+  
+} else {
 
 }
-error_log('Redirected due to unauthorized access');
+try {
+    $sql_cat = "SELECT id, CategoryName, Status, CreationDate, UpdationDate FROM tblcategory";
+    $stmt_cat = $dbh->prepare($sql_cat);
+    $stmt_cat->execute();
+    $results = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
+
+    error_log('Categories fetched successfully');
+    error_log(print_r($results, true));
+} catch (PDOException $e) {
+    error_log('Error fetching categories: ' . $e->getMessage());
+}
+
+
+error_log(print_r($results, 1));
+
+error_log(print_r($stmt_cat->rowCount(), 1));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // On recupere l'identifiant de la catégorie a supprimer
     $id = isset($_POST['id']) ? $_POST['id'] : null;
-    error_log('id ' . $id);
-    error_log(print_r($_SERVER, 1));
-    error_log(print_r($_id,1));
 
-    // On prepare la requete de suppression
-    if ($id !== null) {
-        $stmt = $dbh->prepare("DELETE FROM tblcategory WHERE id = :id");
+    if (isset($_POST['edit'])) {
+        error_log('Editing category with ID: ' . $id);
+        // Redirige vers la page d'édition avec l'ID
+        header("Location: edit-category.php?id=$id");
+        exit();
+    } 
+    elseif (isset($_POST['delete'])) {
+        error_log('Deleting category with ID: ' . $id);
+        // On prépare la requête de suppression
+        if ($id !== null) {
+            try {
+                $stmt = $dbh->prepare("DELETE FROM tblcategory WHERE Id = :id");
+                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
-        // On lie l'identifiant à la requête préparée
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        error_log('stmt ' . print_r($stmt, 1));
-
-    }
-    // On execute la requete
-    if ($stmt->execute()) {
-        // On informe l'utilisateur du resultat de loperation
-        $_SESSION['msg'] = "Catégorie supprimée avec succès";
-    } else {
-        $_SESSION['error'] = "Quelque chose s'est mal passé. Veuillez réessayer";
+                // On exécute la requête
+                if ($stmt->execute()) {
+                    $_SESSION['msg'] = "Catégorie supprimée avec succès";
+                    error_log('Category deleted successfully');
+                } 
+                else {
+                    $_SESSION['error'] = "Quelque chose s'est mal passé. Veuillez réessayer";
+                    error_log('Error deleting category');
+                }
+            } 
+            catch (PDOException $e) {
+                error_log('Error executing delete query: ' . $e->getMessage());
+            }
+        }
     }
 }
 
-// On redirige l'utilisateur vers la page manage-categories.php
-// header('location:../manage.php');
-//Supprime toutes les entrées de la table 
+
 
 ?>
 
@@ -70,50 +94,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include('includes/header.php'); ?>
    
     <!-- On affiche le titre de la page-->
-    <div class="container 50px-">
+    <div class="container ">
+    <br>
         <h2>Gestion des catégories</h2>
-      
-        <div class="row">
-            <div class="col-md-12">
-                <?php
-                // On verifie si la variable de session msg est definie
-                if (isset($_SESSION['msg']) && !empty($_SESSION['msg'])) {
-                    // On affiche le message de succes
-                    echo "<span class='alert alert-success'>" . $_SESSION['msg'] . "</span>";
-                    // On detruit la variable de session msg
-                    if (isset($_SESSION['msg'])) {
-                        unset($_SESSION['msg']);
-                    }
-                    error_log("msg " . print_r($_SESSION, 1));
-                }
-                // On verifie si la variable de session error est definie
-                if (isset($_SESSION['error']) && !empty($_SESSION['error'])) {
-                    // On affiche le message d'erreur
-                    echo "<span class='alert alert-danger'>" . $_SESSION['error'] . "</span>";
-                    // On detruit la variable de session error
-                    if (isset($_SESSION['error'])) {
-                        unset($_SESSION['error']);
-                    }
-                    error_log("error " . print_r($_SESSION, 1));
-                }
-                ?>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-11 offset-md-1 col-xl-12 offset-xl-2">
             </div>
-
-
-            <div class="row">
-                <div class="col-md-12">
-                    <form action="process-category.php" method="POST">
-                        <div class="form-group">
-                            <label for="id">Nom de la catégorie:</label>
-                            <input type="text" class="form-control" id="id" name="id" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">supprimer</button>
-                    </form>
-                </div>
-            </div>
-
-
         </div>
+        <br>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col" class="table-bordered border-dark" id="number-culomn">#</th>
+                    <th scope="col" class="table-bordered border-dark">Nom</th>
+                    <th scope="col" class="table-bordered border-dark">Statut</th>
+                    <th scope="col" class="table-bordered border-dark">Crée le</th>
+                    <th scope="col" class="table-bordered border-dark">Mise à jour le</th>
+                    <th scope="col" class="table-bordered border-dark">Action
+                       
+                       
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                foreach ($results as $i => $result) {
+                    $i++; 
+                ?>
+                    <tr>
+                        <th scope="row" class="table-secondary table-bordered border-dark"><?php echo $i ?></th>
+                        <td class="table-secondary table-bordered border-dark"><?php echo $result['CategoryName'] ?></td>
+                        <td class="table-secondary table-bordered border-dark"><?php echo $result['Status'] ?></td>
+                        <td class="table-secondary table-bordered border-dark"><?php echo $result['CreationDate'] ?></td>
+                        <td class="table-secondary table-bordered border-dark"><?php echo $result['UpdationDate'] ?></td>
+                        <td class="table-secondary table-bordered border-dark">
+                            <form method="post" action="">
+                                <input type="hidden" name="id" value="<?php echo $result['id'] ?>">
+                                <button type="submit" class="btn btn-primary" name="edit">Editer</button>
+                                <button type="submit" class="btn btn-warning" name="delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
+    <br>
 
         <!-- CONTENT-WRAPPER SECTION END-->
         <?php include('includes/footer.php'); ?>
