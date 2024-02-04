@@ -11,41 +11,41 @@ error_log('config included');
 
 // Si l'utilisateur n'est plus logué
 if (strlen($_SESSION['alogin']) == 0) {
-    
-// if (!isset($_SESSION['alogin']) || $_SESSION['alogin'] != 'admin') {
+
+    // if (!isset($_SESSION['alogin']) || $_SESSION['alogin'] != 'admin') {
     $_SESSION['error'] = "Something went wrong. Please try again";
 
     // On le redirige vers la page de login
     header('Location:../index.php');
-   
 
-// Sinon on peut continuer. Après soumission du formulaire de creation
-} 
+
+    // Sinon on peut continuer. Après soumission du formulaire de creation
+}
 
 error_log(print_r($_POST, 1));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // On recupere le nom et le statut de la categorie
     $categoryName = $_POST['categoryName'];
-    error_log(gettype( $categoryName));
-    
+    error_log(gettype($categoryName));
+
     //$categoryStatus = array_key_exists('Status', $_POST) ? $_POST['Status']: '0';
     $categoryStatus = $_POST['categoryStatus'];
-    error_log(gettype( $categoryStatus));
+    error_log(gettype($categoryStatus));
 
     // On prepare la requete d'insertion dans la table tblcategory
     $sql = "INSERT INTO tblcategory (CategoryName, Status) VALUES (:CategoryName, :Status)";
     $query = $dbh->prepare($sql);
     $query->bindParam(':CategoryName', $categoryName, PDO::PARAM_STR);
     $query->bindParam(':Status', $categoryStatus, PDO::PARAM_STR);
-    error_log(gettype( $categoryStatus));
+    error_log(gettype($categoryStatus));
 
     // On execute la requête
     $query->execute();
     error_log('Query executed');
 
 
-} 
+}
 
 ?>
 
@@ -71,19 +71,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- MENU SECTION END-->
 
     <!-- Page title -->
-    <h1>Ajout de categories</h1>
+    <h1>AJOUTER UNE CATEGORIE</h1>
+
 
     <!-- Form for category creation -->
+
     <form method="post" action="add-category.php">
-        <label for="categoryName">Nom de la catégorie:</label>
-        <input type="text" id="categoryName" name="categoryName" required>
-        <label for="categoryStatus">Statut:</label>
-        <select id="categoryStatus" name="categoryStatus" required>
+        <label for="categoryName">Nom</label>
+            <input type="text" id="categoryName" name="categoryName" required>
+        <label for="categoryStatus">Statut</label>
+            <select id="categoryStatus" name="categoryStatus" required>
             <option value="1">Active</option>
             <option value="0">Inactive</option>
             <option value="2">Autre status</option>
         </select>
-        <input type="submit" value="Ajouter la catégorie">
+
+        <button type="submit" value="Ajouter la catégorie" class="btn btn-primary">Creer</button>
     </form>
 
     <!-- CONTENT-WRAPPER SECTION END-->

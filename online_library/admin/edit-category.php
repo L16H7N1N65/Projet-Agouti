@@ -2,6 +2,9 @@
 session_start();
 error_log('Session started manage-categories.php');
 error_log("edit-categories" . print_r($_SESSION, true));
+error_log("edit-categories" . print_r($_POST, true));
+error_log("edit-categories" . print_r($_GET, true));
+
 
 include('includes/config.php');
 
@@ -13,23 +16,32 @@ if (strlen($_SESSION['alogin']) == 0) {
 
 else {
     // Sinon
+    $id = isset($_GET['id']) ? intval($_GET['id']) : "" ;
     // Apres soumission du formulaire de categorie
-    if (isset($_POST['submit'])) {
+    if (isset($_POST['id'])) {
         // On recupere l'identifiant, le statut, le nom
-        $id = intval($_GET['id']);
-        $categoryName = $_POST['CategoryName'];
-
-        $categoryStatus = $_POST['categoryStatus'];
-        error_log(gettype( $categoryStatus));
         
+
+        $categoryName = isset($_POST['name']) ? $_POST['name'] : "Inconnue" ;
+        
+        $Status = isset($_POST['Status']) ? intval($_POST['Status']) : "0" ;
+        
+        error_log("id =".$_POST['id']);
+        error_log("stus =".$Status);
+        error_log("name = ".$categoryName);
+
         // On prepare la requete de mise a jour
-        $sql = "UPDATE tblcategory SET CategoryName=:categoryName,Status=:categoryStatus WHERE id=:id";
+        $sql = "UPDATE tblcategory SET CategoryName=:categoryName,Status=:Status WHERE id=:id";
+
+        //$sql = "UPDATE tblcategory SET CategoryName='$categoryName',Status=$Status WHERE id=".$_POST['id'];
+        //error_log($sql);
+
 
         $query = $dbh->prepare($sql);
-        $query->bindParam(':CategoryName', $categoryName, PDO::PARAM_STR);
-        $query->bindParam(':Status', $categoryStatus, PDO::PARAM_STR);
-        $query->bindParam(':id', $id, PDO::PARAM_INT);
-        error_log(gettype( $categoryStatus));
+        $query->bindParam(':categoryName', $categoryName, PDO::PARAM_STR);
+        $query->bindParam(':Status', $Status, PDO::PARAM_STR);
+        $query->bindParam(':id', $_POST['id'], PDO::PARAM_INT);
+        // error_log(gettype( $Status));
 
         // $categoryStatus = :  fetch = $query->fetch(PDO::FETCH_OBJ);
 
@@ -44,7 +56,7 @@ else {
         }
 
         // On redirige l'utilisateur vers edit-categories.php
-        header('Location: edit-category.php');
+        header('Location: manage-categories.php');
         exit;
     }
 
@@ -82,6 +94,7 @@ else {
         <!-- On affiche le formulaire dedition-->
         <!-- Un champ de saisie du nom -->
         <div class="form-group">
+        <form method="post" action="edit-category.php">
             <label for="name">Nom de la catégorie</label>
             <input type="text" class="form-control" id="name" name="name" required>
         </div>
@@ -93,7 +106,7 @@ else {
         <!-- Si la categorie est active (status == 1)-->
         <?php 
         
-        if ($categoryStatus == 1) :'status'?>
+        if (isset($Status) && $Status == 1) : ?>
             <!-- On coche le bouton radio "actif"-->
             <input type="radio" name="status" value="1" checked> Actif
             <input type="radio" name="status" value="0"> Inactif
@@ -102,14 +115,16 @@ else {
 
             <!-- Sinon-->
             <!-- On coche le bouton radio "inactif"-->
-            <input type="radio" name="status" value="1"> Actif
-            <input type="radio" name="status" value="0" checked> Inactif
+            <input type="radio" name="Status" value="1"> Actif
+            <input type="radio" name="Status" value="0" checked> Inactif
 
         <?php endif; ?>
         
         <!-- Un bouton « Mettre à jour » -->
         <div class="form-group">
-            <button type="submit" class="btn btn-primary">Mettre à jour</button>
+            <br>
+            <button type="submit" class="btn btn-primary" name="id" value="<?php echo $id?>">Mettre à jour </button>
+        </div>
         </div>
         <!-- CONTENT-WRAPPER SECTION END-->
         <?php include('includes/footer.php'); ?>
